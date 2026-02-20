@@ -3,7 +3,7 @@ import { NavigationItem } from "@/lib/types";
 export const mainNavigation: NavigationItem[] = [
   {
     label: "RV Skirts",
-    href: "/collections/rv-skirts",
+    href: "/build/rv-skirt",
     children: [
       { label: "Build Your RV Skirt", href: "/build/rv-skirt" },
       { label: "Measuring Guide", href: "/guides/rv-measuring" },
