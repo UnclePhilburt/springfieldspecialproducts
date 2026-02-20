@@ -66,7 +66,7 @@ export default function HomePage() {
       <section className="bg-blue-50 border-b border-blue-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
           <p className="text-sm text-blue-800">
-            Looking for the <strong>Water Blob</strong>?
+            Looking for <strong>The Water Blob</strong>?
           </p>
           <a
             href="https://thewaterblob.com"
