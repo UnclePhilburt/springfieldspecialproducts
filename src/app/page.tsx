@@ -139,7 +139,7 @@ export default function HomePage() {
             </div>
             <h3 className="text-lg font-semibold text-dark-800">Made in Missouri</h3>
             <p className="mt-2 text-sm text-gray-600">
-              Manufactured in Springfield, MO with American-made materials.
+              Manufactured in Springfield, MO.
             </p>
           </div>
           <div>
