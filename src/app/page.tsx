@@ -62,6 +62,26 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Water Blob Banner */}
+      <section className="bg-blue-50 border-b border-blue-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+          <p className="text-sm text-blue-800">
+            Looking for <strong>Water Blob</strong> water trampolines? Visit our sister site.
+          </p>
+          <a
+            href="https://thewaterblob.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 text-sm font-semibold text-blue-700 hover:text-blue-900 transition-colors flex items-center gap-1"
+          >
+            thewaterblob.com
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+        </div>
+      </section>
+
       {/* Featured Collections */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <h2 className="text-2xl sm:text-3xl font-bold text-dark-800 mb-8">
