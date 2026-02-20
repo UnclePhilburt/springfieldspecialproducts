@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { cn, formatPrice } from "@/lib/utils";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 
@@ -152,8 +152,8 @@ export default function CustomTarpBuilder() {
   const [vinyl, setVinyl] = useState("18oz");
   const [color, setColor] = useState("Black");
   const [grommets, setGrommets] = useState("24");
-  // addedToCart state removed — checkout temporarily disabled
   const [tool, setTool] = useState<"select" | "flap">("select");
+  const [viewResetKey, setViewResetKey] = useState(0);
 
   const area = shoelaceArea(points);
   const rate = PRICE_PER_SQFT[vinyl] ?? 1.9;
@@ -168,6 +168,7 @@ export default function CustomTarpBuilder() {
   function setPreset(pts: Point[]) {
     setPoints(pts);
     setTool("select");
+    setViewResetKey((k) => k + 1);
   }
 
   function addPointOnEdge(edgeIdx: number) {
@@ -278,6 +279,7 @@ export default function CustomTarpBuilder() {
             onAddFlap={addFlapOnEdge}
             onRemovePoint={removePoint}
             onResizeEdge={resizeEdge}
+            viewResetKey={viewResetKey}
           />
 
           {/* Instructions */}
@@ -467,6 +469,7 @@ function ShapeCanvas({
   onAddFlap,
   onRemovePoint,
   onResizeEdge,
+  viewResetKey,
 }: {
   points: Point[];
   setPoints: (pts: Point[]) => void;
@@ -477,33 +480,38 @@ function ShapeCanvas({
   onAddFlap: (edgeIdx: number) => void;
   onRemovePoint: (idx: number) => void;
   onResizeEdge: (edgeIdx: number, newLen: number) => void;
+  viewResetKey: number;
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
   const dragging = useRef<number | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
   const [editingEdge, setEditingEdge] = useState<number | null>(null);
   const [editValue, setEditValue] = useState("");
 
-  // Dynamic viewBox centered on shape
-  const pMaxX = Math.max(...points.map((p) => p.x));
-  const pMaxY = Math.max(...points.map((p) => p.y));
-  const pMinX = Math.min(...points.map((p) => p.x));
-  const pMinY = Math.min(...points.map((p) => p.y));
+  // Manual pan & zoom state
+  const [panOffset, setPanOffset] = useState<Point>({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const panning = useRef<{ startX: number; startY: number; startPan: Point } | null>(null);
 
-  const shapeW = pMaxX - pMinX;
-  const shapeH = pMaxY - pMinY;
-  const shapeCX = (pMinX + pMaxX) / 2;
-  const shapeCY = (pMinY + pMaxY) / 2;
+  // Fixed view size (doesn't change with shape)
+  const baseViewFt = 30;
+  const viewW = baseViewFt / zoom;
+  const viewH = baseViewFt / zoom;
 
-  const rawViewW = Math.max(shapeW + PAD_FT * 2, MIN_VIEW_FT);
-  const rawViewH = Math.max(shapeH + PAD_FT * 2, MIN_VIEW_FT);
-  const viewW = Math.ceil(rawViewW / 5) * 5;
-  const viewH = Math.ceil(rawViewH / 5) * 5;
-  const viewMinX = Math.round((shapeCX - viewW / 2) * 2) / 2;
-  const viewMinY = Math.round((shapeCY - viewH / 2) * 2) / 2;
+  // Center on shape when preset changes
+  useEffect(() => {
+    const minX = Math.min(...points.map((p) => p.x));
+    const maxX = Math.max(...points.map((p) => p.x));
+    const minY = Math.min(...points.map((p) => p.y));
+    const maxY = Math.max(...points.map((p) => p.y));
+    const cx = (minX + maxX) / 2;
+    const cy = (minY + maxY) / 2;
+    setPanOffset({ x: cx, y: cy });
+    setZoom(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewResetKey]);
 
-  const vbX = viewMinX * PX_PER_FT;
-  const vbY = viewMinY * PX_PER_FT;
+  const vbX = (panOffset.x - viewW / 2) * PX_PER_FT;
+  const vbY = (panOffset.y - viewH / 2) * PX_PER_FT;
   const vbW = viewW * PX_PER_FT;
   const vbH = viewH * PX_PER_FT;
 
@@ -528,25 +536,58 @@ function ShapeCanvas({
       e.stopPropagation();
       (e.target as SVGElement).setPointerCapture(e.pointerId);
       dragging.current = idx;
-      setIsDragging(true);
     },
     []
   );
 
+  // Pan: start on background pointerdown
+  const onBgPointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      if (dragging.current !== null) return;
+      (e.target as SVGElement).setPointerCapture(e.pointerId);
+      panning.current = { startX: e.clientX, startY: e.clientY, startPan: { ...panOffset } };
+    },
+    [panOffset]
+  );
+
   const onPointerMove = useCallback(
     (e: React.PointerEvent) => {
-      if (dragging.current === null) return;
-      const p = clientToFt(e.clientX, e.clientY);
-      const idx = dragging.current;
-      setPoints(points.map((pt, i) => (i === idx ? p : pt)));
+      // Dragging a vertex
+      if (dragging.current !== null) {
+        const p = clientToFt(e.clientX, e.clientY);
+        const idx = dragging.current;
+        setPoints(points.map((pt, i) => (i === idx ? p : pt)));
+        return;
+      }
+      // Panning the canvas
+      if (panning.current) {
+        if (!svgRef.current) return;
+        const rect = svgRef.current.getBoundingClientRect();
+        const dx = ((e.clientX - panning.current.startX) / rect.width) * viewW;
+        const dy = ((e.clientY - panning.current.startY) / rect.height) * viewH;
+        setPanOffset({
+          x: panning.current.startPan.x - dx,
+          y: panning.current.startPan.y - dy,
+        });
+      }
     },
-    [points, setPoints, clientToFt]
+    [points, setPoints, clientToFt, viewW, viewH]
   );
 
   const onPointerUp = useCallback(() => {
     dragging.current = null;
-    setIsDragging(false);
+    panning.current = null;
   }, []);
+
+  // Zoom with scroll wheel
+  const onWheel = useCallback(
+    (e: React.WheelEvent) => {
+      e.preventDefault();
+      const factor = e.deltaY > 0 ? 0.9 : 1.1;
+      setZoom((z) => Math.min(Math.max(z * factor, 0.3), 5));
+    },
+    []
+  );
 
   const onDoubleClick = useCallback(
     (idx: number) => (e: React.MouseEvent) => {
@@ -583,6 +624,8 @@ function ShapeCanvas({
   const grommetFt = grommets === "none" ? 0 : parseInt(grommets) / 12;
 
   // Grid
+  const viewMinX = panOffset.x - viewW / 2;
+  const viewMinY = panOffset.y - viewH / 2;
   const gridStart = Math.floor(Math.min(viewMinX, viewMinY) / 5) * 5;
   const gridEnd = Math.ceil(Math.max(viewMinX + viewW, viewMinY + viewH) / 5) * 5;
 
@@ -612,24 +655,22 @@ function ShapeCanvas({
     );
   }
 
-  const aspectRatio = vbW / vbH;
-
   return (
     <div
-      className={cn(
-        "bg-white border border-t-0 border-gray-200 overflow-hidden",
-        !isDragging && "transition-all duration-300 ease-in-out"
-      )}
-      style={{ paddingBottom: `${(1 / aspectRatio) * 100}%`, position: "relative" }}
+      className="bg-white border border-t-0 border-gray-200 overflow-hidden"
+      style={{ paddingBottom: "75%", position: "relative" }}
     >
       <svg
         ref={svgRef}
         viewBox={`${vbX} ${vbY} ${vbW} ${vbH}`}
         className="absolute inset-0 w-full h-full touch-none select-none"
         preserveAspectRatio="xMidYMid meet"
+        onPointerDown={onBgPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerLeave={onPointerUp}
+        onWheel={onWheel}
+        style={{ cursor: panning.current ? "grabbing" : "grab" }}
       >
         {gridLines}
         {gridLabels}
