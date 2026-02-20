@@ -1,10 +1,23 @@
 import { NextResponse } from "next/server";
+import { sendNotificationEmail, formatFormRow, wrapEmailHtml } from "@/lib/brevo";
 
 export async function POST(request: Request) {
   const data = await request.json();
 
-  // Log for now — replace with email service (Resend, SendGrid, etc.) later
-  console.log("Contact form submission:", data);
+  const rows = [
+    formatFormRow("Name", data.name),
+    formatFormRow("Email", data.email),
+    formatFormRow("Phone", data.phone),
+    formatFormRow("Message", data.message),
+  ].join("");
 
-  return NextResponse.json({ success: true });
+  try {
+    await sendNotificationEmail({
+      subject: "New Contact Form Submission",
+      htmlContent: wrapEmailHtml("New Contact Message", rows),
+    });
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ success: false }, { status: 500 });
+  }
 }
