@@ -1,6 +1,6 @@
 const BREVO_API_KEY = process.env.BREVO_API_KEY || "";
 const NOTIFICATION_EMAIL = process.env.NOTIFICATION_EMAIL || "";
-const FROM_EMAIL = "noreply@springfieldspecialproducts.com";
+const FROM_EMAIL = "lorie@thewaterblob.com";
 const FROM_NAME = "Springfield Special Products";
 
 interface SendEmailOptions {
@@ -10,12 +10,10 @@ interface SendEmailOptions {
 
 export async function sendNotificationEmail({ subject, htmlContent }: SendEmailOptions) {
   if (!BREVO_API_KEY) {
-    console.warn("BREVO_API_KEY not set — skipping email");
-    return;
+    throw new Error("BREVO_API_KEY not set");
   }
   if (!NOTIFICATION_EMAIL) {
-    console.warn("NOTIFICATION_EMAIL not set — skipping email");
-    return;
+    throw new Error("NOTIFICATION_EMAIL not set");
   }
 
   const res = await fetch("https://api.brevo.com/v3/smtp/email", {
