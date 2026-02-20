@@ -152,7 +152,7 @@ export default function CustomTarpBuilder() {
   const [vinyl, setVinyl] = useState("18oz");
   const [color, setColor] = useState("Black");
   const [grommets, setGrommets] = useState("24");
-  const [addedToCart, setAddedToCart] = useState(false);
+  // addedToCart state removed — checkout temporarily disabled
   const [tool, setTool] = useState<"select" | "flap">("select");
 
   const area = shoelaceArea(points);
@@ -228,39 +228,7 @@ export default function CustomTarpBuilder() {
     setPoints(points.map((pt, i) => (i === bIdx ? newB : pt)));
   }
 
-  function handleAddToCart() {
-    const shapeDesc = points.map((p) => `(${p.x}',${p.y}')`).join(" → ");
-    const btn = document.createElement("button");
-    btn.className = "snipcart-add-item";
-    btn.style.display = "none";
-    btn.setAttribute("data-item-id", `custom-tarp-${area.toFixed(0)}sqft-${color}-${vinyl}`);
-    btn.setAttribute(
-      "data-item-name",
-      `Custom Tarp – ${area.toFixed(1)} sq ft / ${color} / ${vinyl}`
-    );
-    btn.setAttribute("data-item-price", String(price.toFixed(2)));
-    btn.setAttribute("data-item-url", "/build/custom-tarp");
-    btn.setAttribute(
-      "data-item-description",
-      `Custom ${vinyl} vinyl tarp, ${area.toFixed(1)} sq ft, ${color}, grommets: ${grommets === "none" ? "none" : "every " + grommets + '"'}, reinforced edges`
-    );
-    btn.setAttribute("data-item-custom1-name", "Area");
-    btn.setAttribute("data-item-custom1-value", `${area.toFixed(1)} sq ft`);
-    btn.setAttribute("data-item-custom2-name", "Shape Coordinates (ft)");
-    btn.setAttribute("data-item-custom2-value", shapeDesc);
-    btn.setAttribute("data-item-custom3-name", "Vinyl / Color");
-    btn.setAttribute("data-item-custom3-value", `${vinyl} / ${color}`);
-    btn.setAttribute("data-item-custom4-name", "Grommets");
-    btn.setAttribute(
-      "data-item-custom4-value",
-      grommets === "none" ? "None" : `Every ${grommets}"`
-    );
-    document.body.appendChild(btn);
-    btn.click();
-    setTimeout(() => btn.remove(), 500);
-    setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 3000);
-  }
+  // Add to cart temporarily disabled — will be re-enabled with Square checkout
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -435,12 +403,20 @@ export default function CustomTarpBuilder() {
             </div>
           </div>
 
-          <button
-            onClick={handleAddToCart}
-            className="w-full py-3 bg-brand-500 text-dark-900 font-semibold rounded-lg hover:bg-brand-400 transition-colors cursor-pointer"
-          >
-            {addedToCart ? "Added!" : "Add to Cart"}
-          </button>
+          <div className="bg-brand-50 rounded-lg p-5 text-center">
+            <p className="text-sm font-medium text-dark-800 mb-2">
+              Ready to order? Call us with your configuration:
+            </p>
+            <a
+              href="tel:4178648461"
+              className="inline-flex items-center gap-2 text-xl font-bold text-dark-900 hover:text-brand-700 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
+              (417) 864-8461
+            </a>
+          </div>
 
           <p className="text-xs text-gray-400 text-center">
             Need something more complex?{" "}

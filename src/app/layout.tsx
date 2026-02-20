@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Script from "next/script";
+// import Script from "next/script"; // Re-enable when Snipcart checkout is configured
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -40,22 +40,17 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
           rel="stylesheet"
         />
-        <link
-          rel="preconnect"
-          href="https://cdn.snipcart.com"
-        />
-        <link
-          rel="stylesheet"
-          href="https://cdn.snipcart.com/themes/v3.7.1/default/snipcart.css"
-        />
+        {/* Snipcart CSS — re-enable when checkout is configured */}
+        {/* <link rel="preconnect" href="https://cdn.snipcart.com" />
+        <link rel="stylesheet" href="https://cdn.snipcart.com/themes/v3.7.1/default/snipcart.css" /> */}
       </head>
       <body className="antialiased">
         <Header />
         <main className="min-h-screen">{children}</main>
         <Footer />
 
-        {/* Snipcart */}
-        <div
+        {/* Snipcart — temporarily disabled until checkout is configured */}
+        {/* <div
           hidden
           id="snipcart"
           data-api-key={process.env.NEXT_PUBLIC_SNIPCART_API_KEY || "YOUR_SNIPCART_API_KEY"}
@@ -64,7 +59,7 @@ export default function RootLayout({
         <Script
           src="https://cdn.snipcart.com/themes/v3.7.1/default/snipcart.js"
           strategy="lazyOnload"
-        />
+        /> */}
       </body>
     </html>
   );

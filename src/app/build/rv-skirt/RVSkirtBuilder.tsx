@@ -350,12 +350,20 @@ export default function RVSkirtBuilder() {
                   Includes ${FW_PRICE} fifth-wheel hitch skirt
                 </div>
               )}
-              <button
-                onClick={handleAddToCart}
-                className="mt-4 w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 bg-brand-500 text-dark-900 font-semibold rounded-lg hover:bg-brand-400 transition-colors cursor-pointer"
-              >
-                Add to Cart
-              </button>
+              <div className="mt-4 bg-brand-50 rounded-lg p-4">
+                <p className="text-sm font-medium text-dark-800 mb-2">
+                  Ready to order? Call us with your configuration:
+                </p>
+                <a
+                  href="tel:4178648461"
+                  className="inline-flex items-center gap-2 text-xl font-bold text-dark-900 hover:text-brand-700 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                  (417) 864-8461
+                </a>
+              </div>
             </div>
 
             {/* Included items */}
