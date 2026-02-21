@@ -28,7 +28,7 @@ export default function Header() {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center justify-center flex-1 gap-1">
             {mainNavigation.map((item) => (
               <div key={item.href} className="relative group">
                 <Link
