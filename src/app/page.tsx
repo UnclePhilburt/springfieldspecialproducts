@@ -364,7 +364,7 @@ export default function HomePage() {
             (417) 864-8461
           </a>
           <p className="mt-4 text-sm text-dark-700">
-            Monday – Friday, 8am – 5pm CST
+            Monday – Friday, 8am – 4:30pm CST
           </p>
         </div>
       </section>
