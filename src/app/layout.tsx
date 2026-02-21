@@ -45,6 +45,10 @@ export default function RootLayout({
         <link rel="stylesheet" href="https://cdn.snipcart.com/themes/v3.7.1/default/snipcart.css" /> */}
       </head>
       <body className="antialiased">
+        <div className="bg-amber-500 text-dark-900 text-center text-xs font-semibold py-1.5 px-4">
+          This site is currently under construction. For orders, call us at{" "}
+          <a href="tel:4178648461" className="underline">(417) 864-8461</a>.
+        </div>
         <Header />
         <main className="min-h-screen">{children}</main>
         <Footer />
