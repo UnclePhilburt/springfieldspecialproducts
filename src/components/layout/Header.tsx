@@ -22,7 +22,7 @@ export default function Header() {
               height={40}
               className="h-10 w-auto"
             />
-            <span className="hidden xl:inline text-xl font-bold text-brand-400 tracking-tight">
+            <span className="hidden sm:inline text-xl font-bold text-brand-400 tracking-tight">
               Springfield Special Products
             </span>
           </Link>
