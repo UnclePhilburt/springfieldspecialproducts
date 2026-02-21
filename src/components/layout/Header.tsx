@@ -14,7 +14,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2 shrink-0">
             <Image
               src="/images/logo.svg"
               alt="Springfield Special Products"
@@ -22,18 +22,18 @@ export default function Header() {
               height={40}
               className="h-10 w-auto"
             />
-            <span className="hidden sm:inline text-xl font-bold text-brand-400 tracking-tight">
+            <span className="hidden xl:inline text-xl font-bold text-brand-400 tracking-tight">
               Springfield Special Products
             </span>
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center justify-center flex-1 gap-1">
+          <nav className="hidden lg:flex items-center justify-center flex-1 gap-0.5">
             {mainNavigation.map((item) => (
               <div key={item.href} className="relative group">
                 <Link
                   href={item.href}
-                  className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-brand-400 rounded-md hover:bg-dark-700 transition-colors"
+                  className="whitespace-nowrap px-2.5 py-2 text-sm font-medium text-gray-300 hover:text-brand-400 rounded-md hover:bg-dark-700 transition-colors"
                 >
                   {item.label}
                 </Link>
@@ -78,7 +78,7 @@ export default function Header() {
 
             {/* Mobile menu button */}
             <button
-              className="md:hidden p-2 text-gray-300 hover:text-brand-400"
+              className="lg:hidden p-2 text-gray-300 hover:text-brand-400"
               onClick={() => setMobileOpen(true)}
               aria-label="Open menu"
             >
