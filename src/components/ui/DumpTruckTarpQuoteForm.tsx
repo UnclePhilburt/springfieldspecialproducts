@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import FormConfirmation from "./FormConfirmation";
 
 export default function DumpTruckTarpQuoteForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const renderTime = useRef(Date.now());
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -25,6 +26,8 @@ export default function DumpTruckTarpQuoteForm() {
       vinylWeight: (form.elements.namedItem("vinylWeight") as HTMLSelectElement).value,
       color: (form.elements.namedItem("color") as HTMLInputElement).value,
       details: (form.elements.namedItem("details") as HTMLTextAreaElement).value,
+      website: (form.elements.namedItem("website") as HTMLInputElement).value,
+      _t: renderTime.current,
     };
 
     try {
@@ -54,6 +57,7 @@ export default function DumpTruckTarpQuoteForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <input type="text" name="website" autoComplete="off" className="absolute opacity-0 h-0 w-0 pointer-events-none" tabIndex={-1} aria-hidden="true" />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">

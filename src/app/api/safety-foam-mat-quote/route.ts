@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import { sendNotificationEmail, formatFormRow, wrapEmailHtml } from "@/lib/brevo";
+import { isSpam } from "@/lib/antispam";
 
 export async function POST(request: Request) {
   const data = await request.json();
+
+  if (isSpam(data)) {
+    return NextResponse.json({ success: true }); // silent reject
+  }
 
   const rows = [
     formatFormRow("Name", data.name),

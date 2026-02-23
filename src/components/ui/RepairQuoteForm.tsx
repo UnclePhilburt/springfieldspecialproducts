@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import FormConfirmation from "./FormConfirmation";
 
 export default function RepairQuoteForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const renderTime = useRef(Date.now());
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -17,6 +18,8 @@ export default function RepairQuoteForm() {
       phone: (form.elements.namedItem("phone") as HTMLInputElement).value,
       itemType: (form.elements.namedItem("itemType") as HTMLSelectElement).value,
       description: (form.elements.namedItem("description") as HTMLTextAreaElement).value,
+      website: (form.elements.namedItem("website") as HTMLInputElement).value,
+      _t: renderTime.current,
     };
 
     try {
@@ -43,6 +46,7 @@ export default function RepairQuoteForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <input type="text" name="website" autoComplete="off" className="absolute opacity-0 h-0 w-0 pointer-events-none" tabIndex={-1} aria-hidden="true" />
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
           Name *
