@@ -46,8 +46,9 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <div className="bg-amber-500 text-dark-900 text-center text-xs font-semibold py-1.5 px-4">
-          This site is currently under construction. For orders, call us at{" "}
-          <a href="tel:4178648461" className="underline">(417) 864-8461</a>.
+          Every product is custom made to order. Call us at{" "}
+          <a href="tel:4178648461" className="underline">(417) 864-8461</a>{" "}
+          to get started.
         </div>
         <Header />
         <main className="min-h-screen">{children}</main>
