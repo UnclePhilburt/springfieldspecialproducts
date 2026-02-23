@@ -14,11 +14,12 @@ export const collections: Collection[] = [
   },
   {
     id: "trailer-covers",
-    name: "Trailer Covers",
+    name: "Covers & Tarps",
     slug: "trailer-covers",
     description:
-      "Industrial-grade vinyl trailer covers and tarps built to withstand years of highway travel and extreme weather.",
+      "Industrial-grade vinyl covers and tarps for stock trailers, flatbeds, dump trucks, and agriculture.",
     image: "/images/StockTrailer.png",
+    href: "/covers-tarps",
     featured: true,
     displayOrder: 5,
   },

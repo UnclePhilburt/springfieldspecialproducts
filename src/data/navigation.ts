@@ -10,14 +10,8 @@ export const mainNavigation: NavigationItem[] = [
     ],
   },
   {
-    label: "Trailer Covers",
-    href: "/collections/trailer-covers",
-    children: [
-      { label: "Stock Trailer Covers", href: "/quote/stock-trailer-cover" },
-      { label: "Rollover Tarps", href: "/quote/rollover-tarp" },
-      { label: "Dump Truck Tarps", href: "/quote/dump-truck-tarp" },
-      { label: "Agriculture Tarps", href: "/quote/agriculture-tarp" },
-    ],
+    label: "Covers & Tarps",
+    href: "/covers-tarps",
   },
   {
     label: "Custom Tarps",

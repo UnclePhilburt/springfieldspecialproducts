@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import FormConfirmation from "./FormConfirmation";
 
 export default function AgricultureTarpQuoteForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
@@ -45,14 +46,7 @@ export default function AgricultureTarpQuoteForm() {
   }
 
   if (status === "sent") {
-    return (
-      <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-        <p className="text-green-800 font-medium">
-          Thank you! We&apos;ve received your quote request and will get back to
-          you with pricing.
-        </p>
-      </div>
-    );
+    return <FormConfirmation type="quote" />;
   }
 
   const inputClass =

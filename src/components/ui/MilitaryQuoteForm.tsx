@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import FormConfirmation from "./FormConfirmation";
 
 export default function MilitaryQuoteForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
@@ -41,14 +42,7 @@ export default function MilitaryQuoteForm() {
   }
 
   if (status === "sent") {
-    return (
-      <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-        <p className="text-green-800 font-medium">
-          Thank you! We&apos;ve received your military procurement request and will
-          respond promptly.
-        </p>
-      </div>
-    );
+    return <FormConfirmation type="quote" />;
   }
 
   const inputClass =

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import FormConfirmation from "./FormConfirmation";
 
 export default function ContactForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
@@ -36,13 +37,7 @@ export default function ContactForm() {
   }
 
   if (status === "sent") {
-    return (
-      <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-        <p className="text-green-800 font-medium">
-          Thank you! Your message has been sent. We&apos;ll get back to you soon.
-        </p>
-      </div>
-    );
+    return <FormConfirmation type="contact" />;
   }
 
   return (

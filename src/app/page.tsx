@@ -83,7 +83,81 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured Collections */}
+      {/* Trusted Since 1985 — merged with trust props */}
+      <section className="bg-gray-50 border-y border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <ScrollReveal>
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <h2 className="text-2xl sm:text-3xl font-bold text-dark-800 mb-4">
+                Trusted Since 1985
+              </h2>
+              <p className="text-gray-600 leading-relaxed">
+                For over 40 years, military buyers, farmers, RV owners, and businesses across
+                the country have relied on Springfield Special Products for heavy-duty vinyl
+                that holds up when it matters most.
+              </p>
+              <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-6">
+                <div>
+                  <div className="text-3xl font-extrabold text-brand-600">40+</div>
+                  <div className="text-sm text-gray-500 mt-1">Years in Business</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-extrabold text-brand-600">1000s</div>
+                  <div className="text-sm text-gray-500 mt-1">Products Built</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-extrabold text-brand-600">50</div>
+                  <div className="text-sm text-gray-500 mt-1">States Served</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-extrabold text-brand-600">100%</div>
+                  <div className="text-sm text-gray-500 mt-1">Made in Missouri</div>
+                </div>
+              </div>
+            </div>
+          </ScrollReveal>
+          <ScrollReveal stagger>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+              <div className="fade-in-up">
+                <div className="w-12 h-12 bg-brand-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-6 h-6 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-dark-800">Built to Last</h3>
+                <p className="mt-2 text-sm text-gray-600">
+                  Heavy-duty 18-22 oz vinyl with heat-welded seams for maximum durability.
+                </p>
+              </div>
+              <div className="fade-in-up">
+                <div className="w-12 h-12 bg-brand-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-6 h-6 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-dark-800">Made in Missouri</h3>
+                <p className="mt-2 text-sm text-gray-600">
+                  Manufactured in Springfield, MO.
+                </p>
+              </div>
+              <div className="fade-in-up">
+                <div className="w-12 h-12 bg-brand-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-6 h-6 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-dark-800">Expert Support</h3>
+                <p className="mt-2 text-sm text-gray-600">
+                  Call us at (417) 864-8461 for custom quotes and product guidance.
+                </p>
+              </div>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* Shop by Category */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <ScrollReveal>
           <h2 className="text-2xl sm:text-3xl font-bold text-dark-800 mb-8">
@@ -163,83 +237,31 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Trust / Value Props */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <ScrollReveal stagger>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
-            <div className="fade-in-up">
-              <div className="w-12 h-12 bg-brand-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-6 h-6 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-dark-800">Built to Last</h3>
-              <p className="mt-2 text-sm text-gray-600">
-                Heavy-duty 18-22 oz vinyl with heat-welded seams for maximum durability.
-              </p>
-            </div>
-            <div className="fade-in-up">
-              <div className="w-12 h-12 bg-brand-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-6 h-6 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-dark-800">Made in Missouri</h3>
-              <p className="mt-2 text-sm text-gray-600">
-                Manufactured in Springfield, MO.
-              </p>
-            </div>
-            <div className="fade-in-up">
-              <div className="w-12 h-12 bg-brand-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-6 h-6 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-dark-800">Expert Support</h3>
-              <p className="mt-2 text-sm text-gray-600">
-                Call us at (417) 864-8461 for custom quotes and product guidance.
-              </p>
-            </div>
-          </div>
-        </ScrollReveal>
-      </section>
-
-      {/* Social Proof */}
-      <section className="bg-gray-50 border-y border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <ScrollReveal>
-            <div className="text-center max-w-3xl mx-auto">
-              <h2 className="text-2xl sm:text-3xl font-bold text-dark-800 mb-4">
-                Trusted Since 1985
-              </h2>
-              <p className="text-gray-600 leading-relaxed">
-                For over 40 years, military buyers, farmers, RV owners, and businesses across
-                the country have relied on Springfield Special Products for heavy-duty vinyl
-                that holds up when it matters most.
-              </p>
-              <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-6">
-                <div>
-                  <div className="text-3xl font-extrabold text-brand-600">40+</div>
-                  <div className="text-sm text-gray-500 mt-1">Years in Business</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-extrabold text-brand-600">1000s</div>
-                  <div className="text-sm text-gray-500 mt-1">Products Built</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-extrabold text-brand-600">50</div>
-                  <div className="text-sm text-gray-500 mt-1">States Served</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-extrabold text-brand-600">100%</div>
-                  <div className="text-sm text-gray-500 mt-1">Made in Missouri</div>
-                </div>
-              </div>
-            </div>
-          </ScrollReveal>
+      {/* Call Us CTA */}
+      <ScrollReveal>
+      <section className="bg-brand-500">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold text-dark-900 mb-2">
+            Ready to Get Started?
+          </h2>
+          <p className="text-dark-700 mb-6">
+            Call us directly for quotes, questions, or to place an order.
+          </p>
+          <a
+            href="tel:4178648461"
+            className="inline-flex items-center gap-3 px-8 py-4 bg-dark-800 text-white font-bold text-xl rounded-lg hover:bg-dark-700 transition-colors"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
+            (417) 864-8461
+          </a>
+          <p className="mt-4 text-sm text-dark-700">
+            Monday – Friday, 8am – 4:30pm CST
+          </p>
         </div>
       </section>
+      </ScrollReveal>
 
       {/* Military Support */}
       <ScrollReveal>
@@ -340,32 +362,6 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
-      </ScrollReveal>
-
-      {/* Call Us CTA */}
-      <ScrollReveal>
-      <section className="bg-brand-500">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold text-dark-900 mb-2">
-            Ready to Get Started?
-          </h2>
-          <p className="text-dark-700 mb-6">
-            Call us directly for quotes, questions, or to place an order.
-          </p>
-          <a
-            href="tel:4178648461"
-            className="inline-flex items-center gap-3 px-8 py-4 bg-dark-800 text-white font-bold text-xl rounded-lg hover:bg-dark-700 transition-colors"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-            </svg>
-            (417) 864-8461
-          </a>
-          <p className="mt-4 text-sm text-dark-700">
-            Monday – Friday, 8am – 4:30pm CST
-          </p>
         </div>
       </section>
       </ScrollReveal>
