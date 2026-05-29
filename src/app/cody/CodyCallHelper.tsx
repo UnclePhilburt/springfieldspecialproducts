@@ -221,6 +221,10 @@ export default function CodyCallHelper() {
     setPoints(nextPoints);
     setWidth(snapByUnit(nextBounds.width, measurementUnit));
     setLength(snapByUnit(nextBounds.length, measurementUnit));
+
+    if (nextPoints.length !== 4) {
+      setParallelSides(false);
+    }
   }
 
   const quoteSummary = [
@@ -644,6 +648,23 @@ function TarpPreview({
     setPoints(points.map((point, index) => (index === draggingIndex.current ? nextPoint : point)));
   }
 
+  function addPointOnEdge(edgeIndex: number) {
+    const start = points[edgeIndex];
+    const end = points[(edgeIndex + 1) % points.length];
+    const midpoint = {
+      x: snapByUnit((start.x + end.x) / 2, unit),
+      y: snapByUnit((start.y + end.y) / 2, unit),
+    };
+    const nextPoints = [...points];
+    nextPoints.splice(edgeIndex + 1, 0, midpoint);
+    setPoints(nextPoints);
+  }
+
+  function removePoint(pointIndex: number) {
+    if (points.length <= 3) return;
+    setPoints(points.filter((_, index) => index !== pointIndex));
+  }
+
   return (
     <div className="relative overflow-hidden rounded-lg border border-dark-200 bg-white">
       <svg
@@ -676,6 +697,20 @@ function TarpPreview({
 
           return (
             <g key={`edge-${index}`}>
+              <line
+                x1={ax}
+                y1={ay}
+                x2={bx}
+                y2={by}
+                stroke="transparent"
+                strokeWidth="18"
+                className="cursor-copy"
+                onDoubleClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  addPointOnEdge(index);
+                }}
+              />
               <text x={midX} y={midY - 8} textAnchor="middle" fontSize="12" fontWeight="700" fill="#111827">
                 {formatMeasurement(len, unit)}
               </text>
@@ -714,6 +749,11 @@ function TarpPreview({
                   draggingIndex.current = index;
                   (event.currentTarget as SVGCircleElement).setPointerCapture(event.pointerId);
                 }}
+                onDoubleClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  removePoint(index);
+                }}
               />
               <circle
                 cx={screenPoint.x}
@@ -741,7 +781,7 @@ function TarpPreview({
         })}
       </svg>
       <div className="absolute left-3 top-3 rounded-md bg-white/90 px-2 py-1 text-xs font-bold text-dark-700 shadow-sm">
-        Drag points - {parallelSides ? "parallel sides" : "slanted sides"} - {unit === "inches" ? '6" grid' : "2 ft grid"}
+        Drag points - double-click edge to add - double-click point to remove - {parallelSides ? "parallel sides" : "slanted sides"} - {unit === "inches" ? '6" grid' : "2 ft grid"}
       </div>
     </div>
   );
