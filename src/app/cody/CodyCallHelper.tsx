@@ -7,6 +7,7 @@ type ProductKey = "custom-tarp" | "rv-skirt" | "trailer-cover" | "straps" | "rep
 type VinylKey = "18oz" | "22oz";
 type GrommetKey = "24" | "18" | "12" | "none";
 type MeasurementUnit = "feet" | "inches";
+type RigType = "travel_trailer" | "fifth_wheel" | "motorhome";
 
 type Point = {
   x: number;
@@ -40,6 +41,53 @@ const grommetOptions: Array<{ key: GrommetKey; label: string; add: number; helpe
   { key: "18", label: 'Every 18"', add: 0, helper: "Free - more tie-down points" },
   { key: "12", label: 'Every 12"', add: 0, helper: "Free - best for wind" },
   { key: "none", label: "None", add: 0, helper: "No grommets" },
+];
+
+const rvMainPrices: Record<number, number> = {
+  50: 610,
+  55: 670,
+  60: 730,
+  65: 790,
+  70: 850,
+  75: 910,
+  80: 960,
+  85: 1020,
+  90: 1070,
+  95: 1130,
+  100: 1180,
+};
+
+const fifthWheelSkirtPrice = 345;
+
+const rigOptions: Array<{ key: RigType; label: string; helper: string }> = [
+  { key: "travel_trailer", label: "Travel Trailer", helper: "Standard bumper pull" },
+  { key: "fifth_wheel", label: "5th Wheel", helper: "Gooseneck hitch" },
+  { key: "motorhome", label: "Motorhome", helper: "Class A, B, or C" },
+];
+
+const rvPerimeterOptions = [
+  { value: 50, helper: "Small trailer" },
+  { value: 60, helper: "Average" },
+  { value: 70, helper: "Larger rig" },
+  { value: 80, helper: "Big 5th wheel" },
+  { value: 90, helper: "Extra large" },
+  { value: 100, helper: "Maximum" },
+];
+
+const rvClearanceOptions = [
+  { value: 10, helper: "Low profile" },
+  { value: 12, helper: "Standard" },
+  { value: 14, helper: "Common" },
+  { value: 16, helper: "Above average" },
+  { value: 18, helper: "High clearance" },
+  { value: 20, helper: "Extra high" },
+];
+
+const rvColors = [
+  { name: "Black", bg: "#111827" },
+  { name: "Light Gray", bg: "#cbd5e1" },
+  { name: "Tan", bg: "#d7c3a3" },
+  { name: "White", bg: "#f9fafb" },
 ];
 
 function buildRectangle(width: number, length: number): Point[] {
@@ -105,16 +153,30 @@ function formatMeasurement(feet: number, unit: MeasurementUnit) {
   return `${feet.toFixed(1)}'`;
 }
 
+function calculateRVSkirt(perimeter: number, clearance: number) {
+  const bufferFt = Math.round(perimeter * 0.05 * 100) / 100;
+  const neededFt = perimeter + bufferFt;
+  const roundedFt = Math.max(Math.ceil(neededFt / 5) * 5, 50);
+  const cappedFt = Math.min(roundedFt, 100);
+  const height = clearance + 6 <= 20 ? '27"' : '44"';
+
+  return { bufferFt, roundedFt: cappedFt, height };
+}
+
 export default function CodyCallHelper() {
   const [activeProduct, setActiveProduct] = useState<ProductKey>("custom-tarp");
   const [points, setPoints] = useState<Point[]>(() => buildRectangle(10, 12));
   const [measurementUnit, setMeasurementUnit] = useState<MeasurementUnit>("feet");
   const [parallelSides, setParallelSides] = useState(true);
-  const [vinyl, setVinyl] = useState<VinylKey>("18oz");
+  const [vinyl, setVinyl] = useState<VinylKey>("22oz");
   const [color, setColor] = useState("Black");
   const [grommets, setGrommets] = useState<GrommetKey>("24");
-  const [rush, setRush] = useState(false);
-  const [needsPhotos, setNeedsPhotos] = useState(false);
+  const [rvRig, setRvRig] = useState<RigType>("travel_trailer");
+  const [rvPerimeter, setRvPerimeter] = useState(60);
+  const [rvClearance, setRvClearance] = useState(12);
+  const [rvColor, setRvColor] = useState("Black");
+  const [includeFifthWheelSkirt, setIncludeFifthWheelSkirt] = useState(false);
+  const [rvFifthWheelColor, setRvFifthWheelColor] = useState("Black");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
@@ -130,10 +192,26 @@ export default function CodyCallHelper() {
   const pricedArea = area + hemAllowanceArea;
   const vinylRate = vinylOptions.find((option) => option.key === vinyl)?.rate ?? 1.9;
   const grommetAdd = grommetOptions.find((option) => option.key === grommets)?.add ?? 0;
-  const basePrice = pricedArea * (vinylRate + grommetAdd);
-  const rushAdd = rush ? Math.max(25, basePrice * 0.15) : 0;
-  const estimatedPrice = basePrice + rushAdd;
+  const estimatedPrice = pricedArea * (vinylRate + grommetAdd);
   const selectedColor = colors.find((option) => option.name === color) ?? colors[0];
+  const selectedProduct = products.find((product) => product.key === activeProduct) ?? products[0];
+  const rvCalc = calculateRVSkirt(rvPerimeter, rvClearance);
+  const rvBasePrice = rvMainPrices[rvCalc.roundedFt] ?? rvMainPrices[100];
+  const rvEstimatedPrice = rvBasePrice + (includeFifthWheelSkirt ? fifthWheelSkirtPrice : 0);
+  const rvRigLabel = rigOptions.find((option) => option.key === rvRig)?.label ?? "RV";
+  const activeEstimate = activeProduct === "rv-skirt" ? rvEstimatedPrice : estimatedPrice;
+  const activeMetrics =
+    activeProduct === "rv-skirt"
+      ? [
+          { label: "Kit Length", value: `${rvCalc.roundedFt} ft` },
+          { label: "Height", value: rvCalc.height },
+          { label: "Estimate", value: formatPrice(rvEstimatedPrice) },
+        ]
+      : [
+          { label: "Priced Area", value: `${pricedArea.toFixed(0)} sf` },
+          { label: "Perimeter", value: `${perimeter.toFixed(0)} ft` },
+          { label: "Estimate", value: formatPrice(estimatedPrice) },
+        ];
 
   function applyPoints(nextPoints: Point[]) {
     setPoints(nextPoints);
@@ -143,7 +221,7 @@ export default function CodyCallHelper() {
     }
   }
 
-  const quoteSummary = [
+  const tarpQuoteSummary = [
     "Custom tarp phone estimate",
     "Shape: Custom drawn",
     `Finished bounding size: ${bounds.width.toFixed(1)}' x ${bounds.length.toFixed(1)}'`,
@@ -157,10 +235,25 @@ export default function CodyCallHelper() {
     `Grommets: ${grommetOptions.find((option) => option.key === grommets)?.label}`,
     "Edges: 2 inch hem per side included",
     `Parallel sides: ${parallelSides ? "on" : "off"}`,
-    rush ? "Rush: yes" : "Rush: no",
-    needsPhotos ? "Photos/sketch: needed before final quote" : "Photos/sketch: not marked needed",
     `Estimate: ${formatPrice(estimatedPrice)}`,
   ].join("\n");
+
+  const rvQuoteSummary = [
+    "RV skirt phone estimate",
+    `RV type: ${rvRigLabel}`,
+    `Measured perimeter: ${rvPerimeter} ft`,
+    `5% buffer: ${rvCalc.bufferFt.toFixed(2)} ft`,
+    `Kit length: ${rvCalc.roundedFt} ft`,
+    `Ground clearance: ${rvClearance}"`,
+    `Skirt height: ${rvCalc.height}`,
+    `Color: ${rvColor}`,
+    includeFifthWheelSkirt
+      ? `Fifth-wheel hitch skirt: yes, ${rvFifthWheelColor} (+${formatPrice(fifthWheelSkirtPrice)})`
+      : "Fifth-wheel hitch skirt: no",
+    `Estimate: ${formatPrice(rvEstimatedPrice)}`,
+  ].join("\n");
+
+  const quoteSummary = activeProduct === "rv-skirt" ? rvQuoteSummary : tarpQuoteSummary;
 
   async function submitQuote() {
     setSubmitStatus("sending");
@@ -173,8 +266,8 @@ export default function CodyCallHelper() {
           customerName,
           customerPhone,
           customerEmail,
-          product: "Custom Tarp",
-          estimate: formatPrice(estimatedPrice),
+          product: selectedProduct.label,
+          estimate: formatPrice(activeEstimate),
           quoteSummary,
         }),
       });
@@ -191,60 +284,42 @@ export default function CodyCallHelper() {
       <section className="bg-dark-900 text-white border-b border-dark-700">
         <div className="mx-auto max-w-[1800px] px-4 py-7 sm:px-6 lg:px-8">
           <p className="text-brand-300 text-sm font-semibold uppercase tracking-wide">Employee Pricing Tool</p>
-          <div className="mt-2 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
-            <div>
+          <div className="mt-2 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(260px,380px)_minmax(300px,auto)] xl:items-end">
+            <div className="max-w-2xl">
               <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Cody&apos;s Click Quote Desk</h1>
-              <p className="mt-3 max-w-2xl text-dark-200">
+              <p className="mt-3 text-dark-200">
                 Click through the product, size, material, color, and shop options while the customer is on the phone.
               </p>
             </div>
-            <div className="grid grid-cols-3 gap-3 text-center">
-              <Metric label="Priced Area" value={`${pricedArea.toFixed(0)} sf`} />
-              <Metric label="Perimeter" value={`${perimeter.toFixed(0)} ft`} />
-              <Metric label="Estimate" value={formatPrice(estimatedPrice)} />
+            <label className="w-full max-w-sm">
+              <span className="text-xs font-bold uppercase tracking-wide text-dark-300">Product</span>
+              <select
+                value={activeProduct}
+                onChange={(event) => setActiveProduct(event.target.value as ProductKey)}
+                className="mt-1 w-full rounded-md border border-dark-600 bg-dark-800 px-3 py-3 text-sm font-bold text-white outline-none focus:border-brand-300 focus:ring-2 focus:ring-brand-300/30"
+              >
+                {products.map((product) => (
+                  <option key={product.key} value={product.key}>
+                    {product.label}
+                  </option>
+                ))}
+              </select>
+              <span className="mt-1 block text-xs text-dark-300">{selectedProduct.helper}</span>
+            </label>
+            <div className="grid grid-cols-1 gap-3 text-center sm:grid-cols-3 xl:min-w-[300px]">
+              {activeMetrics.map((metric) => (
+                <Metric key={metric.label} label={metric.label} value={metric.value} />
+              ))}
             </div>
           </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-[1800px] px-4 py-6 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-6 2xl:grid-cols-[240px_minmax(0,1fr)_320px]">
-          <aside className="order-2 space-y-4 2xl:order-none 2xl:col-auto">
-            <Panel title="Product">
-              <div className="grid gap-2">
-                {products.map((product) => (
-                  <button
-                    key={product.key}
-                    type="button"
-                    onClick={() => setActiveProduct(product.key)}
-                    className={cn(
-                      "text-left rounded-md border px-3 py-3 transition-colors",
-                      activeProduct === product.key
-                        ? "border-brand-500 bg-brand-50 text-dark-900"
-                        : "border-dark-200 bg-white hover:border-dark-400"
-                    )}
-                  >
-                    <span className="block text-sm font-bold">{product.label}</span>
-                    <span className="mt-1 block text-xs text-dark-500">{product.helper}</span>
-                  </button>
-                ))}
-              </div>
-            </Panel>
-
-            <Panel title="Call flags">
-              <ToggleButton active={rush} onClick={() => setRush(!rush)} label="Rush job" helper="+15% or $25 minimum" />
-              <ToggleButton
-                active={needsPhotos}
-                onClick={() => setNeedsPhotos(!needsPhotos)}
-                label="Needs photo/sketch"
-                helper="Mark when shape is odd"
-              />
-            </Panel>
-          </aside>
-
+        <div className="grid grid-cols-1 gap-6 min-[1500px]:grid-cols-[minmax(0,1fr)_minmax(300px,360px)]">
           {activeProduct === "custom-tarp" ? (
-            <main className="order-1 grid gap-5 2xl:order-none">
-              <div className="order-1 grid grid-cols-1 gap-5 2xl:grid-cols-[minmax(780px,1fr)_260px]">
+            <main className="grid min-w-0 gap-5">
+              <div className="grid min-w-0 grid-cols-1 gap-5 min-[1700px]:grid-cols-[minmax(0,1fr)_minmax(230px,280px)]">
                 <Panel title="Sizing grid">
                   <div className="mb-3 inline-grid grid-cols-2 rounded-md border border-dark-300 bg-dark-50 p-1">
                     <button
@@ -314,27 +389,7 @@ export default function CodyCallHelper() {
                   </Panel>
 
                   <Panel title="Color">
-                    <div className="grid grid-cols-3 gap-2">
-                      {colors.map((option) => (
-                        <button
-                          key={option.name}
-                          type="button"
-                          onClick={() => setColor(option.name)}
-                          className={cn(
-                            "rounded-md border px-2 py-3 text-xs font-semibold transition-colors",
-                            color === option.name
-                              ? "border-brand-500 bg-brand-50 text-dark-900"
-                              : "border-dark-200 bg-white text-dark-700 hover:border-dark-400"
-                          )}
-                        >
-                          <span
-                            className="mx-auto mb-2 block h-7 w-7 rounded-full border border-dark-300"
-                            style={{ background: option.bg }}
-                          />
-                          {option.name}
-                        </button>
-                      ))}
-                    </div>
+                    <ColorSwatchGrid options={colors} selected={color} onSelect={setColor} />
                   </Panel>
                 </div>
               </div>
@@ -355,8 +410,30 @@ export default function CodyCallHelper() {
                 </Panel>
               </div>
             </main>
+          ) : activeProduct === "rv-skirt" ? (
+            <main className="grid min-w-0 gap-5">
+              <RVSkirtTool
+                rig={rvRig}
+                setRig={(nextRig) => {
+                  setRvRig(nextRig);
+                  setIncludeFifthWheelSkirt(nextRig === "fifth_wheel");
+                }}
+                perimeter={rvPerimeter}
+                setPerimeter={setRvPerimeter}
+                clearance={rvClearance}
+                setClearance={setRvClearance}
+                color={rvColor}
+                setColor={setRvColor}
+                includeFifthWheelSkirt={includeFifthWheelSkirt}
+                setIncludeFifthWheelSkirt={setIncludeFifthWheelSkirt}
+                fifthWheelColor={rvFifthWheelColor}
+                setFifthWheelColor={setRvFifthWheelColor}
+                calc={rvCalc}
+                price={rvEstimatedPrice}
+              />
+            </main>
           ) : (
-            <main>
+            <main className="min-w-0">
               <Panel title={`${products.find((product) => product.key === activeProduct)?.label} click tool`}>
                 <div className="rounded-md bg-brand-50 border border-brand-200 p-5">
                   <h2 className="text-xl font-bold text-dark-900">Next up after the tarp tool</h2>
@@ -369,7 +446,7 @@ export default function CodyCallHelper() {
             </main>
           )}
 
-          <aside className="order-3 self-start space-y-5 xl:grid xl:grid-cols-2 xl:gap-5 xl:space-y-0 2xl:order-none 2xl:sticky 2xl:top-24 2xl:block 2xl:space-y-5">
+          <aside className="self-start space-y-5 md:grid md:grid-cols-2 md:gap-5 md:space-y-0 min-[1500px]:sticky min-[1500px]:top-24 min-[1500px]:block min-[1500px]:space-y-5">
             <Panel title="Customer">
               <div className="space-y-3">
                 <TextInput label="Name" value={customerName} onChange={setCustomerName} placeholder="Customer name" />
@@ -380,15 +457,27 @@ export default function CodyCallHelper() {
 
             <div className="rounded-lg bg-dark-900 text-white p-5">
               <h2 className="text-sm font-bold uppercase tracking-wide text-brand-300">Phone price</h2>
-              <div className="mt-3 text-4xl font-extrabold">{formatPrice(estimatedPrice)}</div>
+              <div className="mt-3 text-4xl font-extrabold">{formatPrice(activeEstimate)}</div>
               <div className="mt-4 space-y-2 text-sm text-dark-100">
-                <PriceRow label="Shape area" value={`${area.toFixed(1)} sq ft`} />
-                <PriceRow label="Hem allowance" value={`${hemAllowanceArea.toFixed(1)} sq ft`} />
-                <PriceRow label="Priced area" value={`${pricedArea.toFixed(1)} sq ft`} />
-                <PriceRow label="Vinyl rate" value={`${formatPrice(vinylRate)} / sq ft`} />
-                <PriceRow label="Grommets" value="Free" />
-                <PriceRow label="Hemmed edges" value="Included" />
-                {rush && <PriceRow label="Rush add" value={formatPrice(rushAdd)} />}
+                {activeProduct === "rv-skirt" ? (
+                  <>
+                    <PriceRow label="RV type" value={rvRigLabel} />
+                    <PriceRow label="Measured perimeter" value={`${rvPerimeter} ft`} />
+                    <PriceRow label="With buffer" value={`${rvCalc.roundedFt} ft`} />
+                    <PriceRow label="Skirt height" value={rvCalc.height} />
+                    <PriceRow label="Base kit" value={formatPrice(rvBasePrice)} />
+                    {includeFifthWheelSkirt && <PriceRow label="Hitch skirt" value={formatPrice(fifthWheelSkirtPrice)} />}
+                  </>
+                ) : (
+                  <>
+                    <PriceRow label="Shape area" value={`${area.toFixed(1)} sq ft`} />
+                    <PriceRow label="Hem allowance" value={`${hemAllowanceArea.toFixed(1)} sq ft`} />
+                    <PriceRow label="Priced area" value={`${pricedArea.toFixed(1)} sq ft`} />
+                    <PriceRow label="Vinyl rate" value={`${formatPrice(vinylRate)} / sq ft`} />
+                    <PriceRow label="Grommets" value="Free" />
+                    <PriceRow label="Hemmed edges" value="Included" />
+                  </>
+                )}
               </div>
               <p className="mt-4 text-xs text-dark-300">
                 Estimate only. Final quote can change after shop review, measurements, and photos.
@@ -397,13 +486,23 @@ export default function CodyCallHelper() {
 
             <Panel title="What to tell the customer">
               <div className="space-y-3 text-sm text-dark-700">
-                <p>Estimated price is {formatPrice(estimatedPrice)} before final shop review.</p>
-                <p>
-                  Good pick: {vinyl === "22oz" ? "22 oz for tougher use." : "18 oz for standard flexible coverage."}
-                </p>
-                {grommets === "12" && <p>12 inch grommets are a good call when wind is a problem.</p>}
-                <p>The 2 inch hem on each side is included and covers the normal edge reinforcement.</p>
-                {needsPhotos && <p>Ask them to send a photo or sketch before promising the final number.</p>}
+                {activeProduct === "rv-skirt" ? (
+                  <>
+                    <p>Estimated RV skirt price is {formatPrice(rvEstimatedPrice)} before final shop review.</p>
+                    <p>Measured perimeter gets a 5% buffer and rounds up to a {rvCalc.roundedFt} ft kit.</p>
+                    <p>Clearance of {rvClearance}&quot; uses the {rvCalc.height} skirt height.</p>
+                    {includeFifthWheelSkirt && <p>Price includes the fifth-wheel hitch skirt add-on.</p>}
+                  </>
+                ) : (
+                  <>
+                    <p>Estimated price is {formatPrice(estimatedPrice)} before final shop review.</p>
+                    <p>
+                      Good pick: {vinyl === "22oz" ? "22 oz for tougher use." : "18 oz for standard flexible coverage."}
+                    </p>
+                    {grommets === "12" && <p>12 inch grommets are a good call when wind is a problem.</p>}
+                    <p>The 2 inch hem on each side is included and covers the normal edge reinforcement.</p>
+                  </>
+                )}
               </div>
             </Panel>
 
@@ -436,6 +535,136 @@ export default function CodyCallHelper() {
           </aside>
         </div>
       </section>
+    </div>
+  );
+}
+
+function RVSkirtTool({
+  rig,
+  setRig,
+  perimeter,
+  setPerimeter,
+  clearance,
+  setClearance,
+  color,
+  setColor,
+  includeFifthWheelSkirt,
+  setIncludeFifthWheelSkirt,
+  fifthWheelColor,
+  setFifthWheelColor,
+  calc,
+  price,
+}: {
+  rig: RigType;
+  setRig: (rig: RigType) => void;
+  perimeter: number;
+  setPerimeter: (perimeter: number) => void;
+  clearance: number;
+  setClearance: (clearance: number) => void;
+  color: string;
+  setColor: (color: string) => void;
+  includeFifthWheelSkirt: boolean;
+  setIncludeFifthWheelSkirt: (include: boolean) => void;
+  fifthWheelColor: string;
+  setFifthWheelColor: (color: string) => void;
+  calc: ReturnType<typeof calculateRVSkirt>;
+  price: number;
+}) {
+  return (
+    <div className="grid gap-5">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+        <Panel title="RV type">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 xl:grid-cols-1">
+            {rigOptions.map((option) => (
+              <OptionButton
+                key={option.key}
+                active={rig === option.key}
+                label={option.label}
+                helper={option.helper}
+                onClick={() => setRig(option.key)}
+              />
+            ))}
+          </div>
+        </Panel>
+
+        <Panel title="Perimeter">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {rvPerimeterOptions.map((option) => (
+              <OptionButton
+                key={option.value}
+                active={perimeter === option.value}
+                label={`${option.value} ft`}
+                helper={option.helper}
+                onClick={() => setPerimeter(option.value)}
+              />
+            ))}
+          </div>
+          <p className="mt-3 text-xs text-dark-500">
+            Customer should measure around the RV at ground level with slide-outs extended.
+          </p>
+        </Panel>
+      </div>
+
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+        <Panel title="Ground clearance">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {rvClearanceOptions.map((option) => (
+              <OptionButton
+                key={option.value}
+                active={clearance === option.value}
+                label={`${option.value}"`}
+                helper={option.helper}
+                onClick={() => setClearance(option.value)}
+              />
+            ))}
+          </div>
+          <div className="mt-3 rounded-md bg-dark-50 px-3 py-2 text-sm text-dark-700">
+            Uses <strong>{calc.height}</strong> skirt height. Adds 6&quot; to clearance when choosing height.
+          </div>
+        </Panel>
+
+        <Panel title="Skirt color">
+          <ColorSwatchGrid options={rvColors} selected={color} onSelect={setColor} />
+        </Panel>
+      </div>
+
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <Panel title="Fifth-wheel hitch skirt">
+          <div className="grid grid-cols-2 gap-2">
+            <OptionButton
+              active={includeFifthWheelSkirt}
+              label="Add hitch skirt"
+              helper={`Adds ${formatPrice(fifthWheelSkirtPrice)}`}
+              onClick={() => setIncludeFifthWheelSkirt(true)}
+            />
+            <OptionButton
+              active={!includeFifthWheelSkirt}
+              label="No hitch skirt"
+              helper="Main skirt only"
+              onClick={() => setIncludeFifthWheelSkirt(false)}
+            />
+          </div>
+          {includeFifthWheelSkirt && (
+            <div className="mt-4">
+              <h3 className="text-xs font-bold uppercase tracking-wide text-dark-500">Hitch skirt color</h3>
+              <div className="mt-2">
+                <ColorSwatchGrid options={rvColors} selected={fifthWheelColor} onSelect={setFifthWheelColor} />
+              </div>
+            </div>
+          )}
+        </Panel>
+
+        <div className="rounded-lg bg-dark-900 p-5 text-white">
+          <h2 className="text-sm font-bold uppercase tracking-wide text-brand-300">RV skirt estimate</h2>
+          <div className="mt-3 text-4xl font-extrabold">{formatPrice(price)}</div>
+          <div className="mt-4 space-y-2 text-sm text-dark-100">
+            <PriceRow label="Measured" value={`${perimeter} ft`} />
+            <PriceRow label="5% buffer" value={`${calc.bufferFt.toFixed(2)} ft`} />
+            <PriceRow label="Kit length" value={`${calc.roundedFt} ft`} />
+            <PriceRow label="Height" value={calc.height} />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -779,29 +1008,34 @@ function OptionButton({
   );
 }
 
-function ToggleButton({
-  active,
-  label,
-  helper,
-  onClick,
+function ColorSwatchGrid({
+  options,
+  selected,
+  onSelect,
 }: {
-  active: boolean;
-  label: string;
-  helper: string;
-  onClick: () => void;
+  options: Array<{ name: string; bg: string }>;
+  selected: string;
+  onSelect: (color: string) => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "mb-2 w-full rounded-md border px-3 py-3 text-left transition-colors",
-        active ? "border-brand-500 bg-brand-50 text-dark-900" : "border-dark-200 bg-white hover:border-dark-400"
-      )}
-    >
-      <span className="block text-sm font-bold">{label}</span>
-      <span className="mt-1 block text-xs text-dark-500">{helper}</span>
-    </button>
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-2">
+      {options.map((option) => (
+        <button
+          key={option.name}
+          type="button"
+          onClick={() => onSelect(option.name)}
+          className={cn(
+            "rounded-md border px-2 py-3 text-xs font-semibold transition-colors",
+            selected === option.name
+              ? "border-brand-500 bg-brand-50 text-dark-900"
+              : "border-dark-200 bg-white text-dark-700 hover:border-dark-400"
+          )}
+        >
+          <span className="mx-auto mb-2 block h-7 w-7 rounded-full border border-dark-300" style={{ background: option.bg }} />
+          {option.name}
+        </button>
+      ))}
+    </div>
   );
 }
 
