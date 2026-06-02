@@ -4,7 +4,6 @@ import { useMemo, useRef, useState } from "react";
 import { cn, formatPrice } from "@/lib/utils";
 
 type ProductKey = "custom-tarp" | "rv-skirt" | "trailer-cover" | "straps" | "repair";
-type ShapeKey = "rectangle" | "l-shape" | "t-shape" | "notched" | "flap";
 type VinylKey = "18oz" | "22oz";
 type GrommetKey = "24" | "18" | "12" | "none";
 type MeasurementUnit = "feet" | "inches";
@@ -43,73 +42,7 @@ const grommetOptions: Array<{ key: GrommetKey; label: string; add: number; helpe
   { key: "none", label: "None", add: 0, helper: "No grommets" },
 ];
 
-const shapeOptions: Array<{ key: ShapeKey; label: string; factor: number; helper: string }> = [
-  { key: "rectangle", label: "Rectangle", factor: 1, helper: "Most common" },
-  { key: "l-shape", label: "L-Shape", factor: 0.74, helper: "One corner missing" },
-  { key: "t-shape", label: "T-Shape", factor: 0.62, helper: "Wide top, narrow middle" },
-  { key: "notched", label: "Notched", factor: 0.88, helper: "Small cutout" },
-  { key: "flap", label: "With Flap", factor: 1.18, helper: "Adds extra material" },
-];
-
-const quickSizes = [
-  { label: "8 x 10", width: 8, length: 10 },
-  { label: "10 x 12", width: 10, length: 12 },
-  { label: "12 x 16", width: 12, length: 16 },
-  { label: "16 x 20", width: 16, length: 20 },
-  { label: "20 x 30", width: 20, length: 30 },
-];
-
-function buildShape(shape: ShapeKey, width: number, length: number): Point[] {
-  if (shape === "l-shape") {
-    return [
-      { x: 0, y: 0 },
-      { x: width, y: 0 },
-      { x: width, y: length * 0.58 },
-      { x: width * 0.55, y: length * 0.58 },
-      { x: width * 0.55, y: length },
-      { x: 0, y: length },
-    ];
-  }
-
-  if (shape === "t-shape") {
-    return [
-      { x: 0, y: 0 },
-      { x: width, y: 0 },
-      { x: width, y: length * 0.32 },
-      { x: width * 0.68, y: length * 0.32 },
-      { x: width * 0.68, y: length },
-      { x: width * 0.32, y: length },
-      { x: width * 0.32, y: length * 0.32 },
-      { x: 0, y: length * 0.32 },
-    ];
-  }
-
-  if (shape === "notched") {
-    return [
-      { x: 0, y: 0 },
-      { x: width, y: 0 },
-      { x: width, y: length },
-      { x: width * 0.72, y: length },
-      { x: width * 0.72, y: length * 0.78 },
-      { x: width * 0.52, y: length * 0.78 },
-      { x: width * 0.52, y: length },
-      { x: 0, y: length },
-    ];
-  }
-
-  if (shape === "flap") {
-    return [
-      { x: 0, y: 0 },
-      { x: width, y: 0 },
-      { x: width, y: length },
-      { x: width * 0.68, y: length },
-      { x: width * 0.68, y: length * 1.18 },
-      { x: width * 0.32, y: length * 1.18 },
-      { x: width * 0.32, y: length },
-      { x: 0, y: length },
-    ];
-  }
-
+function buildRectangle(width: number, length: number): Point[] {
   return [
     { x: 0, y: 0 },
     { x: width, y: 0 },
@@ -174,10 +107,7 @@ function formatMeasurement(feet: number, unit: MeasurementUnit) {
 
 export default function CodyCallHelper() {
   const [activeProduct, setActiveProduct] = useState<ProductKey>("custom-tarp");
-  const [shape, setShape] = useState<ShapeKey>("rectangle");
-  const [width, setWidth] = useState(10);
-  const [length, setLength] = useState(12);
-  const [points, setPoints] = useState<Point[]>(() => buildShape("rectangle", 10, 12));
+  const [points, setPoints] = useState<Point[]>(() => buildRectangle(10, 12));
   const [measurementUnit, setMeasurementUnit] = useState<MeasurementUnit>("feet");
   const [parallelSides, setParallelSides] = useState(true);
   const [vinyl, setVinyl] = useState<VinylKey>("18oz");
@@ -205,22 +135,8 @@ export default function CodyCallHelper() {
   const estimatedPrice = basePrice + rushAdd;
   const selectedColor = colors.find((option) => option.name === color) ?? colors[0];
 
-  function setPreset(nextShape: ShapeKey) {
-    setShape(nextShape);
-    setPoints(buildShape(nextShape, width, length));
-  }
-
-  function applySize(nextWidth: number, nextLength: number) {
-    setWidth(nextWidth);
-    setLength(nextLength);
-    setPoints(buildShape(shape, nextWidth, nextLength));
-  }
-
   function applyPoints(nextPoints: Point[]) {
-    const nextBounds = getBounds(nextPoints);
     setPoints(nextPoints);
-    setWidth(snapByUnit(nextBounds.width, measurementUnit));
-    setLength(snapByUnit(nextBounds.length, measurementUnit));
 
     if (nextPoints.length !== 4) {
       setParallelSides(false);
@@ -229,7 +145,7 @@ export default function CodyCallHelper() {
 
   const quoteSummary = [
     "Custom tarp phone estimate",
-    `Shape: ${shapeOptions.find((option) => option.key === shape)?.label}`,
+    "Shape: Custom drawn",
     `Finished bounding size: ${bounds.width.toFixed(1)}' x ${bounds.length.toFixed(1)}'`,
     `Hemmed pricing size: ${pricedWidth.toFixed(2)}' x ${pricedLength.toFixed(2)}'`,
     `Shape area: ${area.toFixed(1)} sq ft`,
@@ -273,7 +189,7 @@ export default function CodyCallHelper() {
   return (
     <div className="min-h-screen bg-dark-50">
       <section className="bg-dark-900 text-white border-b border-dark-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7">
+        <div className="mx-auto max-w-[1800px] px-4 py-7 sm:px-6 lg:px-8">
           <p className="text-brand-300 text-sm font-semibold uppercase tracking-wide">Employee Pricing Tool</p>
           <div className="mt-2 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
             <div>
@@ -291,9 +207,9 @@ export default function CodyCallHelper() {
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 xl:grid-cols-[260px_minmax(0,1fr)_340px] gap-6">
-          <aside className="space-y-4">
+      <section className="mx-auto max-w-[1800px] px-4 py-6 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-6 2xl:grid-cols-[240px_minmax(0,1fr)_320px]">
+          <aside className="order-2 space-y-4 2xl:order-none 2xl:col-auto">
             <Panel title="Product">
               <div className="grid gap-2">
                 {products.map((product) => (
@@ -327,41 +243,8 @@ export default function CodyCallHelper() {
           </aside>
 
           {activeProduct === "custom-tarp" ? (
-            <main className="space-y-5">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                <Panel title="Shape">
-                  <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-2 gap-2">
-                    {shapeOptions.map((option) => (
-                      <OptionButton
-                        key={option.key}
-                        active={shape === option.key}
-                        label={option.label}
-                        helper={option.helper}
-                        onClick={() => setPreset(option.key)}
-                      />
-                    ))}
-                  </div>
-                </Panel>
-
-                <Panel title="Quick sizes">
-                  <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-2 gap-2">
-                    {quickSizes.map((size) => (
-                      <button
-                        key={size.label}
-                        type="button"
-                        onClick={() => {
-                          applySize(size.width, size.length);
-                        }}
-                        className="rounded-md border border-dark-200 bg-white px-3 py-3 text-sm font-bold text-dark-800 hover:border-brand-500 hover:bg-brand-50"
-                      >
-                        {size.label}
-                      </button>
-                    ))}
-                  </div>
-                </Panel>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_260px] gap-5">
+            <main className="order-1 grid gap-5 2xl:order-none">
+              <div className="order-1 grid grid-cols-1 gap-5 2xl:grid-cols-[minmax(780px,1fr)_260px]">
                 <Panel title="Sizing grid">
                   <div className="mb-3 inline-grid grid-cols-2 rounded-md border border-dark-300 bg-dark-50 p-1">
                     <button
@@ -456,7 +339,7 @@ export default function CodyCallHelper() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-5">
+              <div className="order-3 grid grid-cols-1 gap-5">
                 <Panel title="Grommets">
                   <div className="grid grid-cols-2 gap-2">
                     {grommetOptions.map((option) => (
@@ -486,7 +369,7 @@ export default function CodyCallHelper() {
             </main>
           )}
 
-          <aside className="space-y-5 xl:sticky xl:top-24 self-start">
+          <aside className="order-3 self-start space-y-5 xl:grid xl:grid-cols-2 xl:gap-5 xl:space-y-0 2xl:order-none 2xl:sticky 2xl:top-24 2xl:block 2xl:space-y-5">
             <Panel title="Customer">
               <div className="space-y-3">
                 <TextInput label="Name" value={customerName} onChange={setCustomerName} placeholder="Customer name" />
@@ -687,7 +570,7 @@ function TarpPreview({
       <svg
         ref={svgRef}
         viewBox={`${viewX} ${viewY} ${viewW} ${viewH}`}
-        className="aspect-[4/3] w-full touch-none select-none"
+        className="h-[380px] w-full touch-none select-none sm:h-[460px] lg:h-[560px] 2xl:h-[620px]"
         onPointerMove={(event) => updateDrag(event.clientX, event.clientY)}
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
