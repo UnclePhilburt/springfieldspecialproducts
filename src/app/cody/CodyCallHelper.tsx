@@ -573,41 +573,60 @@ function TarpPreview({
   parallelSides: boolean;
 }) {
   const svgRef = useRef<SVGSVGElement>(null);
-  const draggingIndex = useRef<number | null>(null);
+  const dragState = useRef<{
+    index: number;
+    startClientX: number;
+    startClientY: number;
+    startPoint: Point;
+    startPoints: Point[];
+    rectWidth: number;
+    rectHeight: number;
+    viewW: number;
+    viewH: number;
+  } | null>(null);
   const bounds = getBounds(points);
   const pad = 4;
   const scale = 12;
-  const viewW = Math.max(20, bounds.width + pad * 2) * scale;
-  const viewH = Math.max(20, bounds.length + pad * 2) * scale;
-  const poly = points
-    .map((point) => `${(point.x - bounds.minX + pad) * scale},${(point.y - bounds.minY + pad) * scale}`)
-    .join(" ");
+  const viewMinXFt = Math.min(-pad, bounds.minX - pad);
+  const viewMinYFt = Math.min(-pad, bounds.minY - pad);
+  const viewMaxXFt = Math.max(20, bounds.maxX + pad);
+  const viewMaxYFt = Math.max(20, bounds.maxY + pad);
+  const viewX = viewMinXFt * scale;
+  const viewY = viewMinYFt * scale;
+  const viewW = (viewMaxXFt - viewMinXFt) * scale;
+  const viewH = (viewMaxYFt - viewMinYFt) * scale;
+  const poly = points.map((point) => `${point.x * scale},${point.y * scale}`).join(" ");
   const gridLines = [];
   const gridStepFt = unit === "inches" ? 0.5 : 2;
   const majorEveryFt = unit === "inches" ? 1 : 10;
 
-  for (let x = 0; x <= Math.ceil(viewW / scale); x += gridStepFt) {
+  const gridStartX = Math.floor(viewMinXFt / gridStepFt) * gridStepFt;
+  const gridEndX = Math.ceil(viewMaxXFt / gridStepFt) * gridStepFt;
+  const gridStartY = Math.floor(viewMinYFt / gridStepFt) * gridStepFt;
+  const gridEndY = Math.ceil(viewMaxYFt / gridStepFt) * gridStepFt;
+
+  for (let x = gridStartX; x <= gridEndX; x += gridStepFt) {
     const isMajor = Math.abs(x % majorEveryFt) < 0.001;
     gridLines.push(
       <line
         key={`x-${x.toFixed(2)}`}
         x1={x * scale}
-        y1={0}
+        y1={viewY}
         x2={x * scale}
-        y2={viewH}
+        y2={viewY + viewH}
         stroke={isMajor ? "#d1d5db" : "#e5e7eb"}
         strokeWidth={isMajor ? "1" : "0.6"}
       />,
     );
   }
-  for (let y = 0; y <= Math.ceil(viewH / scale); y += gridStepFt) {
+  for (let y = gridStartY; y <= gridEndY; y += gridStepFt) {
     const isMajor = Math.abs(y % majorEveryFt) < 0.001;
     gridLines.push(
       <line
         key={`y-${y.toFixed(2)}`}
-        x1={0}
+        x1={viewX}
         y1={y * scale}
-        x2={viewW}
+        x2={viewX + viewW}
         y2={y * scale}
         stroke={isMajor ? "#d1d5db" : "#e5e7eb"}
         strokeWidth={isMajor ? "1" : "0.6"}
@@ -619,33 +638,31 @@ function TarpPreview({
 
   function toScreen(point: Point) {
     return {
-      x: (point.x - bounds.minX + pad) * scale,
-      y: (point.y - bounds.minY + pad) * scale,
-    };
-  }
-
-  function clientToPoint(clientX: number, clientY: number): Point {
-    if (!svgRef.current) return { x: 0, y: 0 };
-    const rect = svgRef.current.getBoundingClientRect();
-    const localX = (clientX - rect.left) * (viewW / rect.width);
-    const localY = (clientY - rect.top) * (viewH / rect.height);
-
-    return {
-      x: Math.max(-60, Math.min(60, snapByUnit(localX / scale + bounds.minX - pad, unit))),
-      y: Math.max(-60, Math.min(60, snapByUnit(localY / scale + bounds.minY - pad, unit))),
+      x: point.x * scale,
+      y: point.y * scale,
     };
   }
 
   function updateDrag(clientX: number, clientY: number) {
-    if (draggingIndex.current === null) return;
-    const nextPoint = clientToPoint(clientX, clientY);
+    if (!dragState.current) return;
+    const drag = dragState.current;
+    const deltaX = ((clientX - drag.startClientX) * drag.viewW) / drag.rectWidth / scale;
+    const deltaY = ((clientY - drag.startClientY) * drag.viewH) / drag.rectHeight / scale;
+    const nextPoint = {
+      x: Math.max(-60, Math.min(60, snapByUnit(drag.startPoint.x + deltaX, unit))),
+      y: Math.max(-60, Math.min(60, snapByUnit(drag.startPoint.y + deltaY, unit))),
+    };
 
-    if (parallelSides && points.length === 4) {
-      setPoints(resizeRectangleFromCorner(points, draggingIndex.current, nextPoint));
+    if (parallelSides && drag.startPoints.length === 4) {
+      setPoints(resizeRectangleFromCorner(drag.startPoints, drag.index, nextPoint));
       return;
     }
 
-    setPoints(points.map((point, index) => (index === draggingIndex.current ? nextPoint : point)));
+    setPoints(drag.startPoints.map((point, index) => (index === drag.index ? nextPoint : point)));
+  }
+
+  function endDrag() {
+    dragState.current = null;
   }
 
   function addPointOnEdge(edgeIndex: number) {
@@ -669,17 +686,13 @@ function TarpPreview({
     <div className="relative overflow-hidden rounded-lg border border-dark-200 bg-white">
       <svg
         ref={svgRef}
-        viewBox={`0 0 ${viewW} ${viewH}`}
+        viewBox={`${viewX} ${viewY} ${viewW} ${viewH}`}
         className="aspect-[4/3] w-full touch-none select-none"
         onPointerMove={(event) => updateDrag(event.clientX, event.clientY)}
-        onPointerUp={() => {
-          draggingIndex.current = null;
-        }}
-        onPointerLeave={() => {
-          draggingIndex.current = null;
-        }}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
       >
-        <rect width={viewW} height={viewH} fill="#f9fafb" />
+        <rect x={viewX} y={viewY} width={viewW} height={viewH} fill="#f9fafb" />
         {gridLines}
         <polygon points={poly} fill={color} fillOpacity="0.42" stroke="#374151" strokeWidth="3" strokeDasharray="8 5" />
         {points.map((point, index) => {
@@ -746,9 +759,35 @@ function TarpPreview({
                 onPointerDown={(event) => {
                   event.preventDefault();
                   event.stopPropagation();
-                  draggingIndex.current = index;
+                  const rect = svgRef.current?.getBoundingClientRect();
+                  if (!rect) return;
+                  dragState.current = {
+                    index,
+                    startClientX: event.clientX,
+                    startClientY: event.clientY,
+                    startPoint: point,
+                    startPoints: points,
+                    rectWidth: rect.width,
+                    rectHeight: rect.height,
+                    viewW,
+                    viewH,
+                  };
                   (event.currentTarget as SVGCircleElement).setPointerCapture(event.pointerId);
                 }}
+                onPointerMove={(event) => {
+                  if (dragState.current?.index !== index) return;
+                  event.preventDefault();
+                  event.stopPropagation();
+                  updateDrag(event.clientX, event.clientY);
+                }}
+                onPointerUp={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  (event.currentTarget as SVGCircleElement).releasePointerCapture(event.pointerId);
+                  endDrag();
+                }}
+                onPointerCancel={endDrag}
+                onLostPointerCapture={endDrag}
                 onDoubleClick={(event) => {
                   event.preventDefault();
                   event.stopPropagation();
@@ -780,9 +819,6 @@ function TarpPreview({
           );
         })}
       </svg>
-      <div className="absolute left-3 top-3 rounded-md bg-white/90 px-2 py-1 text-xs font-bold text-dark-700 shadow-sm">
-        Drag points - double-click edge to add - double-click point to remove - {parallelSides ? "parallel sides" : "slanted sides"} - {unit === "inches" ? '6" grid' : "2 ft grid"}
-      </div>
     </div>
   );
 }
