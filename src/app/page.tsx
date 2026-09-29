@@ -24,26 +24,27 @@ export default function HomePage() {
             {/* Left: Text */}
             <div className="flex-1">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight max-w-3xl">
-                Premium Custom{" "}
-                <span className="text-brand-400">Heavy-Duty</span>{" "}
-                Vinyl Products
+                Custom{" "}
+                <span className="text-brand-400">RV Skirting</span>{" "}
+                Built for Winter
               </h1>
               <p className="mt-6 text-lg sm:text-xl text-gray-300 max-w-2xl">
-                RV skirts, trailer covers, and custom tarps — built to last
-                in Springfield, Missouri.
+                Heavy-duty vinyl RV skirts made to fit your camper, fifth wheel,
+                or motorhome. Protect plumbing, block wind, and keep more heat
+                where it belongs.
               </p>
               <div className="mt-8 flex flex-wrap gap-4">
                 <Link
-                  href="/collections"
+                  href="/build/rv-skirt"
                   className="inline-flex items-center px-6 py-3 bg-brand-500 text-dark-900 font-semibold rounded-lg hover:bg-brand-400 transition-colors"
                 >
-                  Shop All Products
+                  Build an RV Skirt
                 </Link>
                 <Link
-                  href="/contact"
+                  href="/guides/rv-measuring"
                   className="inline-flex items-center px-6 py-3 bg-white/10 text-white font-semibold rounded-lg border border-white/20 hover:bg-white/20 transition-colors"
                 >
-                  Get a Quote
+                  Measuring Guide
                 </Link>
               </div>
             </div>
@@ -154,6 +155,83 @@ export default function HomePage() {
               </div>
             </div>
           </ScrollReveal>
+        </div>
+      </section>
+
+      {/* RV Skirting Feature */}
+      <section className="bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+            <ScrollReveal>
+              <div>
+                <p className="text-sm font-bold tracking-wider uppercase text-brand-700">
+                  Custom RV Skirts
+                </p>
+                <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight text-dark-800">
+                  Skirting that helps your RV handle cold weather without the
+                  sketchy homemade look.
+                </h2>
+                <p className="mt-5 text-gray-600 leading-relaxed">
+                  Our RV skirting kits are built from premium 18 oz vinyl and
+                  sized around your RV&apos;s measurements. They help seal off
+                  the underbelly, reduce wind exposure, and protect pipes,
+                  tanks, and storage bays during freezing weather.
+                </p>
+                <div className="mt-8 flex flex-wrap gap-4">
+                  <Link
+                    href="/build/rv-skirt"
+                    className="inline-flex items-center px-6 py-3 bg-dark-800 text-white font-semibold rounded-lg hover:bg-dark-700 transition-colors"
+                  >
+                    Price Your RV Skirt
+                  </Link>
+                  <Link
+                    href="/products/rv-skirting"
+                    className="inline-flex items-center px-6 py-3 bg-brand-50 text-dark-800 font-semibold rounded-lg border border-brand-200 hover:border-brand-400 transition-colors"
+                  >
+                    View Kit Details
+                  </Link>
+                </div>
+              </div>
+            </ScrollReveal>
+
+            <ScrollReveal stagger>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  {
+                    title: "Winter Protection",
+                    body: "Blocks wind under the RV to help protect plumbing, tanks, and storage compartments.",
+                  },
+                  {
+                    title: "Custom Fit",
+                    body: "Built from your perimeter and height measurements for campers, motorhomes, and fifth wheels.",
+                  },
+                  {
+                    title: "18 oz Vinyl",
+                    body: "Durable material with reinforced construction made for repeated seasonal use.",
+                  },
+                  {
+                    title: "Hardware Included",
+                    body: "Kits include the mounting hardware needed for a clean, secure installation.",
+                  },
+                ].map((item) => (
+                  <div
+                    key={item.title}
+                    className="fade-in-up rounded-lg border border-gray-200 bg-gray-50 p-5"
+                  >
+                    <div className="w-10 h-10 bg-brand-100 rounded-full flex items-center justify-center mb-4">
+                      <svg className="w-5 h-5 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                    </div>
+                    <h3 className="font-semibold text-dark-800">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-gray-600">
+                      {item.body}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </ScrollReveal>
+          </div>
         </div>
       </section>
 
